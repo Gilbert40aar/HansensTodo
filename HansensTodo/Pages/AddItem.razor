@@ -1,0 +1,57 @@
+﻿@inject AuthenticationStateProvider GetAuthenticationStateAsync
+@inject Codes.Encryption _encryption
+@inject Repo.TodoRepo _context
+@inject NavigationManager _navigationManager
+@using HansensTodo.Models
+@attribute [Authorize(Policy = "RequireAuthUser")]
+@page "/additem"
+<h3>AddItem</h3>
+<div class="row">
+    <div class="col-md-8">
+        <EditForm Model=@todo OnValidSubmit=@handleValidSubmit>
+            <div class="form-group">
+                <label>Title</label>
+                <input type="text" @bind="todo.TodoTitle" name="" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label>Stack Size</label>
+                <input type="text" @bind="todo.StackSize" name="" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label>Price</label>
+                <input type="text" @bind="todo.Price" name="" class="form-control" />
+            </div>
+            <div>
+                <button class="btn btn-primary" type="submit">Save Item</button>
+                <button class="btn btn-danger" type="reset">Clear All</button>
+            </div>
+        </EditForm>
+    </div>
+    <div class="col-md-4"></div>
+</div>
+
+@code {
+    public string UserEmailID = "";
+
+    private Todo todo = new Todo();
+    protected async override Task OnInitializedAsync()
+    {
+        var authState = await GetAuthenticationStateAsync.GetAuthenticationStateAsync();
+        var user = authState.User;
+        UserEmailID = user.Identity.Name;
+    }
+
+    public void handleValidSubmit()
+    {
+
+        try
+        {
+            todo.UserEmailId = UserEmailID;
+            todo.TodoTitle = _encryption.Protect(todo.TodoTitle);
+            _context.CreateItem(todo);
+        } catch
+        {
+            throw;
+        }
+    }
+}

@@ -1,9 +1,79 @@
 ﻿@page "/"
+@using HansensTodo.Models;
+@inject NavigationManager _navigationManager;
+@inject Repo.TodoRepo _context;
+@inject Codes.Encryption _encryption;
 
 <PageTitle>Index</PageTitle>
 
-<h1>Hello, world!</h1>
+<div class="row">
+    <div class="col-md-8">
+        <table class="table table-primary table-striped">
+            <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Title</th>
+                    <th scope="col">Stack Size</th>
+                    <th scope="col">Item Price</th>
+                    <th scope="col">Total Price</th>
+                    <th scope="col">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in todolist)
+                {
+                    <tr>
+                        <td>@item.Id</td>
+                        <td>@item.TodoTitle</td>
+                        <td>@item.StackSize</td>
+                        <td>@item.Price</td>
+                        <td>@TotalPrice(item.StackSize, item.Price)</td>
+                        <td></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <div class="col-md-4"></div>
+</div>
 
-Welcome to your new app.
+@code{
+    [CascadingParameter] private Task<AuthenticationState>? authenticationStateTask { get; set; }
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+    public string UserEmailID = "";
+    public List<Todo> todolist;
+
+    protected override async Task OnInitializedAsync()
+    {
+        todolist = new List<Todo>();
+        var authState = await authenticationStateTask;
+        var user = authState.User;
+        if(user.Identity != null)
+        {
+            if(!user.Identity.IsAuthenticated)
+                _navigationManager.NavigateTo("Identity/Account/Login");
+        }
+        UserEmailID = user.Identity.Name;
+
+        await GetData();
+    }
+
+    public async Task GetData()
+    {
+        List<Todo> ItemList = await _context.GetAllItem(UserEmailID);
+        todolist = ItemList.Select(obj => new Todo
+            {
+                Id = obj.Id,
+                TodoTitle = _encryption.UnProtect(obj.TodoTitle),
+                StackSize = obj.StackSize,
+                Price = obj.Price
+            }).ToList();
+    }
+
+    public int TotalPrice(int _stacksize, int _price)
+    {
+        int result = _stacksize * _price;
+        return result;
+    }
+}
+

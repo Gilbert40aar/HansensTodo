@@ -1,5 +1,7 @@
 using HansensTodo.Areas.Identity;
+using HansensTodo.Codes;
 using HansensTodo.Data;
+using HansensTodo.Repo;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
@@ -27,6 +29,8 @@ builder.Services.AddAuthorization(option =>
         policy.RequireAuthenticatedUser();
     });
 });
+builder.Services.AddSingleton<Encryption>();
+builder.Services.AddScoped<TodoRepo>();
 
 var app = builder.Build();
 

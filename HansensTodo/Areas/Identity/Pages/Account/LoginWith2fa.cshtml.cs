@@ -86,6 +86,8 @@ namespace HansensTodo.Areas.Identity.Pages.Account
             ReturnUrl = returnUrl;
             RememberMe = rememberMe;
 
+            var token = await _userManager.GenerateTwoFactorTokenAsync(user, TokenOptions.DefaultEmailProvider);
+
             return Page();
         }
 
@@ -106,7 +108,13 @@ namespace HansensTodo.Areas.Identity.Pages.Account
 
             var authenticatorCode = Input.TwoFactorCode.Replace(" ", string.Empty).Replace("-", string.Empty);
 
-            var result = await _signInManager.TwoFactorAuthenticatorSignInAsync(authenticatorCode, rememberMe, Input.RememberMachine);
+            //var result = await _signInManager.TwoFactorAuthenticatorSignInAsync(authenticatorCode, rememberMe, Input.RememberMachine);
+            var result = await _signInManager.TwoFactorSignInAsync(
+                TokenOptions.DefaultEmailProvider,
+                authenticatorCode,
+                rememberMe,
+                Input.RememberMachine
+            );
 
             var userId = await _userManager.GetUserIdAsync(user);
 
