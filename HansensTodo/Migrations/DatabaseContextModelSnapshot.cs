@@ -23,8 +23,14 @@ namespace HansensTodo.Migrations
 
             modelBuilder.Entity("HansensTodo.Models.Hashed", b =>
                 {
-                    b.Property<string>("HashId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int>("HashId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("HashId"));
+
+                    b.Property<string>("Dato")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("HashedData")
                         .HasColumnType("nvarchar(max)");

@@ -1,5 +1,6 @@
 ﻿@page "/"
 @using HansensTodo.Models;
+@using System.Security.Cryptography;
 @inject NavigationManager _navigationManager;
 @inject Repo.TodoRepo _context;
 @inject Codes.Encryption _encryption;
@@ -23,12 +24,15 @@
                 @foreach (var item in todolist)
                 {
                     <tr>
-                        <td>@item.Id</td>
-                        <td>@item.TodoTitle</td>
-                        <td>@item.StackSize</td>
-                        <td>@item.Price</td>
-                        <td>@TotalPrice(item.StackSize, item.Price)</td>
-                        <td></td>
+                        <td class="align-content-center">@item.Id</td>
+                        <td class="align-content-center">@item.TodoTitle</td>
+                        <td class="align-content-center">@item.StackSize</td>
+                        <td class="align-content-center">@item.Price Kr.</td>
+                        <td class="align-content-center">@TotalPrice(item.StackSize, item.Price) Kr.</td>
+                        <td>
+                            <a href="">Edit</a>
+                            <a href="">Delete</a>
+                        </td>
                     </tr>
                 }
             </tbody>
@@ -75,5 +79,7 @@
         int result = _stacksize * _price;
         return result;
     }
+
+    
 }
 

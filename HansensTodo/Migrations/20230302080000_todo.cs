@@ -14,9 +14,11 @@ namespace HansensTodo.Migrations
                 name: "TodoHash",
                 columns: table => new
                 {
-                    HashId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    HashId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     UserEmailId = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    HashedData = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    HashedData = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Dato = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {

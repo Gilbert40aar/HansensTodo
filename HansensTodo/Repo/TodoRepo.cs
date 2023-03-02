@@ -41,5 +41,12 @@ namespace HansensTodo.Repo
             await _context.SaveChangesAsync();
             return null;
         }
+
+        public async Task<Todo> UpdateItem(int Id, Todo _todo)
+        {
+            _context.Entry(_todo).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+            return null;
+        }
     }
 }
