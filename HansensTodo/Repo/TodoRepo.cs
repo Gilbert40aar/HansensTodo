@@ -37,16 +37,24 @@ namespace HansensTodo.Repo
 
         public async Task<Todo> CreateItem(Todo _todo)
         {
-            _context.Todos.Add(_todo);
-            await _context.SaveChangesAsync();
-            return null;
+            
+            try
+            {
+                _context.Todos.Add(_todo);
+                await _context.SaveChangesAsync();
+            } catch (Exception ex) 
+            {
+                string message = ex.Message;
+            }
+
+            return _todo;
         }
 
         public async Task<Todo> UpdateItem(int Id, Todo _todo)
         {
             _context.Entry(_todo).State = EntityState.Modified;
             await _context.SaveChangesAsync();
-            return null;
+            return _todo;
         }
     }
 }

@@ -3,6 +3,7 @@
 @using System.Security.Cryptography;
 @inject NavigationManager _navigationManager;
 @inject Repo.TodoRepo _context;
+@inject Repo.HashRepo _hashContext;
 @inject Codes.Encryption _encryption;
 
 <PageTitle>Index</PageTitle>
@@ -38,7 +39,23 @@
             </tbody>
         </table>
     </div>
-    <div class="col-md-4"></div>
+    <div class="col-md-4">
+        @if(count == 0)
+        {
+            <span class="d-flex flex-md-wrap alert alert-success">
+                There is no data for your TodoList. Please click on the button to create data
+            </span>
+            <button @onclick="CreateData" class="btn btn-success">Create TodoData</button>   
+        } else
+        {
+            @if (!isValid)
+            {
+                <span class="d-flex flex-md-wrap alert alert-danger">There is an update to your Todolist Please click on update to verify the update</span>
+                <button @onclick="UpdateData" class="btn btn-success">Update TodoData</button>
+            }
+        }
+
+    </div>
 </div>
 
 @code{
@@ -46,6 +63,10 @@
 
     public string UserEmailID = "";
     public List<Todo> todolist;
+    public string newHash { get; set; }
+    public string oldHash { get; set; }
+    public int count { get; set; }
+    public bool isValid { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -60,6 +81,12 @@
         UserEmailID = user.Identity.Name;
 
         await GetData();
+
+        CheckForEmptyTable(UserEmailID);
+        Task.Run(async() => await OldHash());
+        newHash = HashedTodoListData(todolist);
+
+        isValid = VerifyData(oldHash, newHash);
     }
 
     public async Task GetData()
@@ -78,6 +105,58 @@
     {
         int result = _stacksize * _price;
         return result;
+    }
+
+    public string HashedTodoListData(List<Todo> _todo)
+    {
+        string HashedData = BCrypt.Net.BCrypt.HashPassword(string.Join(',', _todo));
+        return HashedData;        
+    }
+
+    public async Task OldHash()
+    {
+        Hashed item = await _hashContext.GetHash(UserEmailID);
+        oldHash = item.HashedData;
+        //todolist.Add(new Todo() { TodoTitle = _encryption.Protect("Angreb"), StackSize = 25, Price = 15, UserEmailId = UserEmailID });
+        
+    }
+
+    public bool VerifyData(string _oldHash, string _newHash)
+    {
+        return BCrypt.Net.BCrypt.Verify(_oldHash, _newHash);
+    }
+
+    public async Task<Hashed> UpdateData()
+    {
+        Hashed item = new Hashed()
+            {
+                UserEmailId = UserEmailID,
+                HashedData = newHash
+            };
+
+        _hashContext.UpdateHash(item);
+        return null;
+    }
+
+    public void CheckForEmptyTable(string _userEmailId)
+    {
+        count = _hashContext.CheckIfEmpty(_userEmailId);
+    }
+
+    public async Task CreateData()
+    {
+        try {
+        Hashed item = new Hashed()
+            {
+                UserEmailId = UserEmailID,
+                HashedData = newHash
+            };
+        await _hashContext.Create(item);
+
+        } catch (Exception ex)
+        {
+            string message = ex.Message;
+        }
     }
 
     

@@ -29,8 +29,9 @@ builder.Services.AddAuthorization(option =>
         policy.RequireAuthenticatedUser();
     });
 });
-builder.Services.AddSingleton<Encryption>();
+builder.Services.AddScoped<Encryption>();
 builder.Services.AddScoped<TodoRepo>();
+builder.Services.AddScoped<HashRepo>();
 
 var app = builder.Build();
 

@@ -8,30 +8,31 @@
 <h3>AddItem</h3>
 <div class="row">
     <div class="col-md-8">
-        <EditForm Model=@todo OnValidSubmit=@handleValidSubmit>
-            <div class="form-group">
-                <label>Title</label>
-                <input type="text" @bind="todo.TodoTitle" name="" class="form-control" />
-            </div>
-            <div class="form-group">
-                <label>Stack Size</label>
-                <input type="text" @bind="todo.StackSize" name="" class="form-control" />
-            </div>
-            <div class="form-group">
-                <label>Price</label>
-                <input type="text" @bind="todo.Price" name="" class="form-control" />
-            </div>
-            <div>
-                <button class="btn btn-primary" type="submit">Save Item</button>
-                <button class="btn btn-danger" type="reset">Clear All</button>
-            </div>
-        </EditForm>
+        <div class="form-group">
+            <label>Title</label>
+            <input type="text" @bind="TodoTitle" name="" class="form-control" />
+        </div>
+        <div class="form-group">
+            <label>Stack Size</label>
+            <input type="text" @bind="StackSize" name="" class="form-control" />
+        </div>
+        <div class="form-group">
+            <label>Price</label>
+            <input type="text" @bind="Price" name="" class="form-control" />
+        </div>
+        <div>
+            <button class="btn btn-primary" type="submit" @onclick="handleValidSubmit">Save Item</button>
+            <button class="btn btn-danger" type="reset">Clear All</button>
+        </div>
     </div>
     <div class="col-md-4"></div>
 </div>
 
 @code {
     public string UserEmailID = "";
+    public string TodoTitle { get; set; }
+    public int StackSize { get; set; }
+    public int Price { get; set; }
 
     private Todo todo = new Todo();
     protected async override Task OnInitializedAsync()
@@ -41,17 +42,20 @@
         UserEmailID = user.Identity.Name;
     }
 
-    public void handleValidSubmit()
+    public async Task handleValidSubmit()
     {
 
         try
         {
             todo.UserEmailId = UserEmailID;
-            todo.TodoTitle = _encryption.Protect(todo.TodoTitle);
-            _context.CreateItem(todo);
-        } catch
+            todo.TodoTitle = _encryption.Protect(TodoTitle);
+            todo.StackSize = StackSize;
+            todo.Price = Price;
+            await _context.CreateItem(todo);
+
+        } catch (Exception ex)
         {
-            throw;
+            string message = ex.Message;
         }
     }
 }
