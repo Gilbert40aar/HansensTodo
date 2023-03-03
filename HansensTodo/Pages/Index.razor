@@ -86,7 +86,7 @@
         Task.Run(async() => await OldHash());
         newHash = HashedTodoListData(todolist);
 
-        isValid = VerifyData(oldHash, newHash);
+        Task.Run(() => isValid = VerifyData(oldHash, newHash));
     }
 
     public async Task GetData()
@@ -134,7 +134,7 @@
                 HashedData = newHash
             };
 
-        _hashContext.UpdateHash(item);
+        await _hashContext.UpdateHash(item);
         return null;
     }
 
